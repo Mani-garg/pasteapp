@@ -1,15 +1,36 @@
-import { Copy, PlusCircle } from "lucide-react";
+import { Copy, PlusCircle, WandSparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { addToPastes, updatePastes } from "../redux/pasteSlice";
 import { useSearchParams } from "react-router-dom";
 
+const starterTemplates = [
+  {
+    label: "Portfolio",
+    title: "Portfolio Hero Section",
+    content:
+      "<section class=\"hero\">\n  <h1>Hi, I'm a frontend developer</h1>\n  <p>I build fast and accessible web experiences.</p>\n  <button>View Projects</button>\n</section>",
+  },
+  {
+    label: "Landing Page",
+    title: "Product Landing CTA",
+    content:
+      "<section class=\"cta\">\n  <h2>Launch your next web project faster</h2>\n  <p>Reusable UI blocks, clean architecture, and responsive design.</p>\n  <a href=\"#pricing\">Get Started</a>\n</section>",
+  },
+  {
+    label: "Blog",
+    title: "Blog Card Component",
+    content:
+      "<article class=\"post-card\">\n  <h3>How I built my React + Tailwind workflow</h3>\n  <p>Practical tips to ship faster while keeping components maintainable.</p>\n  <span>5 min read</span>\n</article>",
+  },
+];
+
 const Home = () => {
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
-  const [searchParams, setSearchParams] = useSearchParams(); // Destructure useSearchParams
-  const pasteId = searchParams.get("pasteId"); // Get pasteId from the search params
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pasteId = searchParams.get("pasteId");
   const pastes = useSelector((state) => state.paste.pastes);
   const dispatch = useDispatch();
 
@@ -24,16 +45,15 @@ const Home = () => {
     };
 
     if (pasteId) {
-      // If pasteId is present, update the paste
       dispatch(updatePastes(paste));
+      toast.success("Paste updated");
     } else {
       dispatch(addToPastes(paste));
+      toast.success("Paste created");
     }
 
     setTitle("");
     setValue("");
-
-    // Remove the pasteId from the URL after creating/updating a paste
     setSearchParams({});
   };
 
@@ -41,7 +61,12 @@ const Home = () => {
     setTitle("");
     setValue("");
     setSearchParams({});
-    // navigate("/");
+  };
+
+  const applyTemplate = (template) => {
+    setTitle(template.title);
+    setValue(template.content);
+    toast.success(`${template.label} template loaded`);
   };
 
   useEffect(() => {
@@ -54,17 +79,34 @@ const Home = () => {
     }
   }, [pasteId, pastes]);
 
-
   return (
     <div className="w-full h-full py-10 max-w-[1200px] mx-auto px-5 lg:px-0">
       <div className="flex flex-col gap-y-5 items-start">
+        <div className="w-full rounded-md border border-[rgba(128,121,121,0.3)] bg-slate-50 p-4">
+          <p className="font-semibold text-slate-800">Web Dev Project Kickstart</p>
+          <p className="text-sm text-slate-600">
+            Pick a starter template to quickly draft your next project section.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {starterTemplates.map((template) => (
+              <button
+                key={template.label}
+                className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
+                onClick={() => applyTemplate(template)}
+              >
+                <WandSparkles size={14} />
+                {template.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="w-full flex flex-row gap-x-4 justify-between items-center">
           <input
             type="text"
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            // Dynamic width based on whether pasteId is present
             className={`${
               pasteId ? "w-[80%]" : "w-[85%]"
             } text-black border border-input rounded-md p-2`}
@@ -76,36 +118,28 @@ const Home = () => {
             {pasteId ? "Update Paste" : "Create My Paste"}
           </button>
 
-        {pasteId &&  <button
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700"
-            onClick={resetPaste}
-          >
-            <PlusCircle size={20} />
-          </button>}
+          {pasteId && (
+            <button
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700"
+              onClick={resetPaste}
+            >
+              <PlusCircle size={20} />
+            </button>
+          )}
         </div>
 
-        <div
-          className={`w-full flex flex-col items-start relative rounded bg-opacity-10 border border-[rgba(128,121,121,0.3)] backdrop-blur-2xl`}
-        >
-          <div
-            className={`w-full rounded-t flex items-center justify-between gap-x-4 px-4 py-2 border-b border-[rgba(128,121,121,0.3)]`}
-          >
+        <div className="w-full flex flex-col items-start relative rounded bg-opacity-10 border border-[rgba(128,121,121,0.3)] backdrop-blur-2xl">
+          <div className="w-full rounded-t flex items-center justify-between gap-x-4 px-4 py-2 border-b border-[rgba(128,121,121,0.3)]">
             <div className="w-full flex gap-x-[6px] items-center select-none group">
               <div className="w-[13px] h-[13px] rounded-full flex items-center justify-center p-[1px] overflow-hidden bg-[rgb(255,95,87)]" />
 
-              <div
-                className={`w-[13px] h-[13px] rounded-full flex items-center justify-center p-[1px] overflow-hidden bg-[rgb(254,188,46)]`}
-              />
+              <div className="w-[13px] h-[13px] rounded-full flex items-center justify-center p-[1px] overflow-hidden bg-[rgb(254,188,46)]" />
 
               <div className="w-[13px] h-[13px] rounded-full flex items-center justify-center p-[1px] overflow-hidden bg-[rgb(45,200,66)]" />
             </div>
-            {/* Circle and copy btn */}
-            <div
-              className={`w-fit rounded-t flex items-center justify-between gap-x-4 px-4`}
-            >
-              {/*Copy  button */}
+            <div className="w-fit rounded-t flex items-center justify-between gap-x-4 px-4">
               <button
-                className={`flex justify-center items-center  transition-all duration-300 ease-in-out group`}
+                className="flex justify-center items-center transition-all duration-300 ease-in-out group"
                 onClick={() => {
                   navigator.clipboard.writeText(value);
                   toast.success("Copied to Clipboard", {
@@ -118,12 +152,11 @@ const Home = () => {
             </div>
           </div>
 
-          {/* TextArea */}
           <textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Write Your Content Here...."
-            className="w-full p-3  focus-visible:ring-0"
+            className="w-full p-3 focus-visible:ring-0"
             style={{
               caretColor: "#000",
             }}
